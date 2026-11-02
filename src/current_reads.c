@@ -53,7 +53,13 @@ bool current_reads_insert(CurrentReads *reads,
         strlen(title_name) >= MAX_TITLE_LENGTH) {
         return false;
     }
+   
+    if (id <= 0) return false;
 
+    if (current_reads_find(reads, id) != NULL) {
+        return false;
+    }
+    
     if (read_chapters < 0 ||
         read_chapters > total_chapters || 
         total_chapters <= 0) {
@@ -76,4 +82,20 @@ bool current_reads_insert(CurrentReads *reads,
     newNode->prev = reads->tail;
     reads->tail = newNode; 
     return true;
+}
+
+Node *current_reads_find(CurrentReads *reads, i32 id) {
+    if (current_reads_is_empty(reads) == true) return NULL;
+
+    if (id <= 0) return NULL;
+
+    Node *current = reads->head;
+
+    while (current->novel.id != id && current->next != NULL) {
+        current = current->next;
+    }
+
+    if (current->novel.id != id && current->next == NULL) return NULL;
+
+    return current;
 }
