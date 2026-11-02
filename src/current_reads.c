@@ -1,0 +1,79 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "int_types.h"
+#include "current_reads.h"
+
+
+void current_reads_init(CurrentReads *reads) {
+    reads->head = NULL;
+    reads->tail = NULL;
+}
+
+static bool current_reads_is_empty(CurrentReads *reads) {
+    return reads->head == NULL;
+}
+
+static Node *current_reads_create( 
+    const char author_name[], const char title_name[],
+    i32 id, i32 total_chapters, i32 read_chapters) {
+
+    Node *newNode = malloc(sizeof *newNode);
+
+    if (!newNode) return NULL;
+
+    strcpy(newNode->novel.author, author_name);
+    strcpy(newNode->novel.title, title_name);
+    newNode->novel.id = id;
+    newNode->novel.total_chapters = total_chapters;
+    newNode->novel.read_chapters = read_chapters;
+
+    if (read_chapters <= 0) {
+        newNode->novel.status = NOT_STARTED;
+    }
+    if (read_chapters > 0 && read_chapters < total_chapters) {
+        newNode->novel.status = READING;
+    }
+    if (read_chapters == total_chapters) {
+        newNode->novel.status = COMPLETED;
+    }
+
+    newNode->next = NULL;
+    newNode->prev = NULL;
+
+    return newNode;
+}
+
+bool current_reads_insert(CurrentReads *reads, 
+    const char author_name[], const char title_name[],
+    i32 id, i32 total_chapters, i32 read_chapters) {  
+    
+    if(strlen(author_name) >= MAX_AUTHOR_LENGTH ||
+        strlen(title_name) >= MAX_TITLE_LENGTH) {
+        return false;
+    }
+
+    if (read_chapters < 0 ||
+        read_chapters > total_chapters || 
+        total_chapters <= 0) {
+        return false;
+    } 
+    
+    Node *newNode = current_reads_create(
+        author_name, title_name, id, total_chapters, read_chapters
+    );
+
+    if (!newNode) return false;
+
+    if (current_reads_is_empty(reads)) {
+        reads->head = newNode;
+        reads->tail = newNode;
+        return true;
+    }
+
+    reads->tail->next = newNode;
+    newNode->prev = reads->tail;
+    reads->tail = newNode; 
+    return true;
+}

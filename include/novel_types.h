@@ -16,8 +16,8 @@ typedef enum {
 } ReadingStatus;
 
 typedef struct Novel {
-    const char title[MAX_TITLE_LENGTH];
-    const char author[MAX_AUTHOR_LENGTH];
+    char title[MAX_TITLE_LENGTH];
+    char author[MAX_AUTHOR_LENGTH];
 
     i32 id;
     i32 total_chapters;
