@@ -56,10 +56,8 @@ bool current_reads_insert(CurrentReads *reads,
    
     if (id <= 0) return false;
 
-    if (current_reads_find(reads, id) != NULL) {
-        return false;
-    }
-    
+    if (current_reads_find(reads, id) != NULL) return false;
+
     if (read_chapters < 0 ||
         read_chapters > total_chapters || 
         total_chapters <= 0) {
@@ -98,4 +96,33 @@ Node *current_reads_find(CurrentReads *reads, i32 id) {
     if (current->novel.id != id && current->next == NULL) return NULL;
 
     return current;
+}
+
+bool current_reads_update_progress(
+    CurrentReads *reads, i32 id, i32 read_chapters) {
+
+    Node *current = current_reads_find(reads, id);
+
+    if (current == NULL) return false;
+    
+    if (read_chapters > current->novel.total_chapters ||
+        read_chapters < 0) return false;
+
+    current->novel.read_chapters = read_chapters;
+
+    if (current->novel.read_chapters == 0) {
+        current->novel.status = NOT_STARTED;
+        return true;
+    }
+    if (current->novel.read_chapters > 0 &&
+        current->novel.read_chapters < current->novel.total_chapters) {
+        current->novel.status = READING; 
+        return true;   
+    }
+    if (current->novel.read_chapters == current->novel.total_chapters) {
+        current->novel.status = COMPLETED;
+        return true;
+    }
+
+    return false;
 }
