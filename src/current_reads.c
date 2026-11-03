@@ -126,3 +126,40 @@ bool current_reads_update_progress(
 
     return false;
 }
+
+bool current_reads_remove(CurrentReads *reads, i32 id) {
+    Node *current = current_reads_find(reads, id);
+
+    if (current == NULL) return false;
+
+    if (current == reads->head && current == reads->tail) {
+        free(reads->head);
+        reads->head = NULL;
+        reads->tail = NULL;
+        return true;
+    }
+
+    if (current == reads->head) {
+        Node *temp = current->next;
+        free(reads->head);
+        temp->prev = NULL;
+        reads->head = temp;
+        return true;  
+    }
+
+    if (current == reads->tail) {
+        Node *temp = current->prev;
+        free(reads->tail);
+        temp->next = NULL;
+        reads->tail = temp;
+        return true;
+    }
+
+    Node *next_node = current->next;
+    Node *prev_node = current->prev;
+
+    free(current);
+    prev_node->next = next_node;
+    next_node->prev = prev_node;
+    return true;
+}
