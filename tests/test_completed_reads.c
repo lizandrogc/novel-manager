@@ -6,12 +6,11 @@
 
 #include "completed_reads.h"
 
-
 int main(void) {
-    // Init list
     CompletedReads reads;
     completed_reads_init(&reads);
 
+    // Empty list
     assert(reads.head == NULL);
     CompletedNode *nodeFind = completed_reads_find(&reads, 1);
     assert(nodeFind == NULL);
@@ -34,6 +33,8 @@ int main(void) {
     assert(firstNode->novel.total_chapters == 1620);
     assert(firstNode->novel.read_chapters == 1620);
     assert(firstNode->novel.status == COMPLETED);
+    assert(strcmp(firstNode->novel.author, "Er Gen") == 0);
+    assert(strcmp(firstNode->novel.title, "I Shall Seal the Heavens") == 0);
 
     // Test if find function return the head
     CompletedNode *firstNodeFind = completed_reads_find(&reads, 1);
@@ -341,10 +342,32 @@ int main(void) {
     assert(remove_again == false);
     assert(removeReads.head == NULL);
 
-    // Temporary cleanup while completed_reads_free is not implemented
-    free(firstNode);
-    free(secondNode);
-    free(thirdNode);
+    // Test free memmory allocation
+    completed_reads_free(&removeReads);
+    assert(removeReads.head == NULL);
+    
+    completed_reads_free(&reads);
+    assert(reads.head == NULL);
+    completed_reads_free(&reads);
+    assert(reads.head == NULL);
+
+    // Insert a new novel in the empty list
+    bool insert_novel_after_free = completed_reads_insert(&reads,
+        "Wang Yu", "A Record of a Mortal's Journey to Immortality", 1, 2455, 2455
+    );
+
+    CompletedNode *first_novel = reads.head;
+
+    assert(insert_novel_after_free == true);
+    assert(first_novel == reads.head);
+    assert(first_novel->next == NULL);
+    assert(first_novel->novel.id == 1);
+    assert(first_novel->novel.total_chapters == 2455);
+    assert(first_novel->novel.status == COMPLETED);
+
+    // Cleanup the list
+    completed_reads_free(&reads);
+    assert(reads.head == NULL);
 
     printf("All completed_reads test passed!");
 

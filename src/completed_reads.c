@@ -127,3 +127,17 @@ bool completed_reads_remove(CompletedReads *reads, i32 id) {
     prev->next = next_node;
     return true;
 }
+
+void completed_reads_free(CompletedReads *reads) {
+    if (completed_reads_empty(reads) == true) return;
+
+    CompletedNode *current = reads->head;
+
+    while (current != NULL) {
+        CompletedNode *temp = current->next;
+        free(current);
+        current = temp;
+    }
+
+    reads->head = NULL;
+}
