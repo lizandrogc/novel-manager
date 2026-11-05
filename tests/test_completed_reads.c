@@ -205,6 +205,142 @@ int main(void) {
     assert(secondNode->next == thirdNode);
     assert(thirdNode->next == NULL);
 
+    // Init a new list for removal tests
+    CompletedReads removeReads;
+    completed_reads_init(&removeReads);
+
+    // Remove from empty list
+    bool remove_empty = completed_reads_remove(&removeReads, 1);
+
+    assert(remove_empty == false);
+    assert(removeReads.head == NULL);
+
+    // Insert three novels for removal tests
+    bool insert_remove_first = completed_reads_insert(
+        &removeReads, "Er Gen", "Novel A", 10, 100, 100
+    );
+
+    assert(insert_remove_first == true);
+
+    CompletedNode *removeFirst = removeReads.head;
+
+    bool insert_remove_second = completed_reads_insert(
+        &removeReads, "Er Gen", "Novel B", 20, 200, 200
+    );
+
+    assert(insert_remove_second == true);
+
+    CompletedNode *removeSecond = removeFirst->next;
+
+    bool insert_remove_third = completed_reads_insert(
+        &removeReads, "Er Gen", "Novel C", 30, 300, 300
+    );
+
+    assert(insert_remove_third == true);
+
+    CompletedNode *removeThird = removeSecond->next;
+
+    assert(removeReads.head == removeFirst);
+    assert(removeFirst->next == removeSecond);
+    assert(removeSecond->next == removeThird);
+    assert(removeThird->next == NULL);
+
+    // Remove non-existent id
+    bool remove_non_existent = completed_reads_remove(&removeReads, 999);
+
+    assert(remove_non_existent == false);
+
+    // Remove invalid id
+    bool remove_zero = completed_reads_remove(&removeReads, 0);
+    bool remove_negative = completed_reads_remove(&removeReads, -1);
+
+    assert(remove_zero == false);
+    assert(remove_negative == false);
+
+    // Check integrity after fail removals
+    assert(removeReads.head == removeFirst);
+    assert(removeFirst->next == removeSecond);
+    assert(removeSecond->next == removeThird);
+    assert(removeThird->next == NULL);
+
+    assert(removeFirst->novel.id == 10);
+    assert(removeSecond->novel.id == 20);
+    assert(removeThird->novel.id == 30);
+
+    assert(removeFirst->novel.status == COMPLETED);
+    assert(removeSecond->novel.status == COMPLETED);
+    assert(removeThird->novel.status == COMPLETED);
+
+    // Remove the last node
+    bool remove_tail = completed_reads_remove(&removeReads, 30);
+
+    assert(remove_tail == true);
+    assert(removeReads.head == removeFirst);
+    assert(removeFirst->next == removeSecond);
+    assert(removeSecond->next == NULL);
+    assert(completed_reads_find(&removeReads, 30) == NULL);
+
+    // Insert another novel to test mid removal
+    bool insert_remove_fourth = completed_reads_insert(
+        &removeReads, "Er Gen", "Novel D", 40, 400, 400
+    );
+
+    assert(insert_remove_fourth == true);
+
+    CompletedNode *removeFourth = removeSecond->next;
+
+    assert(removeReads.head == removeFirst);
+    assert(removeFirst->next == removeSecond);
+    assert(removeSecond->next == removeFourth);
+    assert(removeFourth->next == NULL);
+
+    // Remove the mid node
+    bool remove_middle = completed_reads_remove(&removeReads, 20);
+
+    assert(remove_middle == true);
+    assert(removeReads.head == removeFirst);
+    assert(removeFirst->next == removeFourth);
+    assert(removeFourth->next == NULL);
+    assert(completed_reads_find(&removeReads, 20) == NULL);
+
+    // Check data
+    assert(removeFirst->novel.id == 10);
+    assert(removeFirst->novel.read_chapters == 100);
+    assert(removeFirst->novel.status == COMPLETED);
+
+    assert(removeFourth->novel.id == 40);
+    assert(removeFourth->novel.read_chapters == 400);
+    assert(removeFourth->novel.status == COMPLETED);
+
+    // Try removing the same node again
+    bool remove_middle_again = completed_reads_remove(&removeReads, 20);
+
+    assert(remove_middle_again == false);
+    assert(removeReads.head == removeFirst);
+    assert(removeFirst->next == removeFourth);
+    assert(removeFourth->next == NULL);
+
+    // Remove the head
+    bool remove_head = completed_reads_remove(&removeReads, 10);
+
+    assert(remove_head == true);
+    assert(removeReads.head == removeFourth);
+    assert(removeFourth->next == NULL);
+    assert(completed_reads_find(&removeReads, 10) == NULL);
+
+    // Remove the only node in the list
+    bool remove_only = completed_reads_remove(&removeReads, 40);
+
+    assert(remove_only == true);
+    assert(removeReads.head == NULL);
+    assert(completed_reads_find(&removeReads, 40) == NULL);
+
+    // Try removing from a empty list again
+    bool remove_again = completed_reads_remove(&removeReads, 40);
+
+    assert(remove_again == false);
+    assert(removeReads.head == NULL);
+
     // Temporary cleanup while completed_reads_free is not implemented
     free(firstNode);
     free(secondNode);

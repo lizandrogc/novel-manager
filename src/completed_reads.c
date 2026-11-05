@@ -83,3 +83,47 @@ bool completed_reads_insert(CompletedReads *reads,
 
     return true;
 }
+
+bool completed_reads_remove(CompletedReads *reads, i32 id) {
+    CompletedNode *current = completed_reads_find(reads, id);
+
+    if (!current) return false;
+
+    if (current == reads->head && current->next == NULL) {
+        free(reads->head);
+        reads->head = NULL;
+        return true;
+    }
+
+    if (current == reads->head) {
+        CompletedNode *aux = reads->head->next;
+        free(reads->head);
+        reads->head = aux;
+        return true;
+    }
+
+    CompletedNode *temp = reads->head;
+    CompletedNode *prev = NULL;
+
+    if (current->next == NULL) {
+        while (temp != current) {
+            prev = temp;
+            temp = temp->next;
+        }
+
+        free(current);
+        prev->next = NULL;
+        return true;
+    }
+
+    while (temp != current) {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    CompletedNode *next_node = current->next;
+
+    free(current);
+    prev->next = next_node;
+    return true;
+}
