@@ -14,11 +14,43 @@ The project focuses on applying fundamental data structures and algorithms while
 
 ## Core Concepts
 
-- **Data Structures** (Lists, Stacks, Queues)
+- **Data Structures** (Linked Lists, Stacks, Queues)
 - **Pointers & Dynamic Memory**
 - **Structs & Data Modeling**
 - **Modular Programming** (`.c` and `.h` files)
+- **Testing & Input Validation**
 
-## Purpose
+## Development Progress
 
-To apply algorithms and data structures in a practical project, emphasizing code organization, modularity, memory management, and problem-solving.
+- [x] **Current Reads** — Doubly Linked List
+- [x] **Completed Reads** — Singly Linked List
+- [ ] **Next Reads** — Queue
+- [ ] **Favorites** — Static List
+- [ ] **Undo History** — Stack
+- [ ] **File Persistence** — Text File
+- [ ] **CLI Integration** — Terminal Interface
+- [ ] **Final Review** — Testing and Documentation
+
+Development is organized into independent stages, with each data structure implemented and tested before integration.
+
+## Building & Testing
+
+The project is currently under development. Individual modules can be compiled and tested using GCC.
+
+### Current Reads
+
+```bash
+gcc -std=c11 -Wall -Wextra -Iinclude tests/test_current_reads.c src/current_reads.c -o tests/current_reads.exe
+
+./tests/current_reads.exe
+```
+
+### Completed Reads
+
+```bash
+gcc -std=c11 -Wall -Wextra -Iinclude tests/test_completed_reads.c src/completed_reads.c -o tests/completed_reads.exe
+
+./tests/completed_reads.exe
+```
+
+Both modules have been tested using assertions to verify their operations, input validation, and list integrity.
