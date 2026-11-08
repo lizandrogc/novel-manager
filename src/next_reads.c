@@ -80,3 +80,9 @@ NextNode *next_reads_find(NextReads *reads, i32 id) {
 
     return current;
 }
+
+NextNode *next_reads_consult(NextReads *reads) {
+    if (next_reads_empty(reads) == true) return NULL;
+
+    return reads->head;
+}
