@@ -8,7 +8,6 @@
 
 
 int main(void) {
-
     // Init queue
     NextReads reads;
     next_reads_init(&reads);
@@ -322,6 +321,110 @@ int main(void) {
     assert(cancelReads.head == NULL);
     assert(cancelReads.tail == NULL);
     
+    // Init new queue for remove tests
+    NextReads removeReads;
+    next_reads_init(&removeReads);
+
+    // Remove from empty queue
+    bool remove_empty = next_reads_remove(&removeReads);
+
+    assert(remove_empty == false);
+    assert(removeReads.head == NULL);
+    assert(removeReads.tail == NULL);
+
+    // Insert three novels
+    bool remove_insert_first = next_reads_insert(
+        &removeReads, "Er Gen", "Novel A", 10, 100
+    );
+
+    bool remove_insert_second = next_reads_insert(
+        &removeReads, "Er Gen", "Novel B", 20, 200
+    );
+
+    bool remove_insert_third = next_reads_insert(
+        &removeReads, "Er Gen", "Novel C", 30, 300
+    );
+
+    assert(remove_insert_first == true);
+    assert(remove_insert_second == true);
+    assert(remove_insert_third == true);
+
+    NextNode *removeFirst = removeReads.head;
+    NextNode *removeSecond = removeFirst->next;
+    NextNode *removeThird = removeReads.tail;
+
+    assert(removeFirst->next == removeSecond);
+    assert(removeSecond->next == removeThird);
+    assert(removeThird->next == NULL);
+
+    // Remove first novel FIFO
+    bool remove_first = next_reads_remove(&removeReads);
+
+    assert(remove_first == true);
+    assert(removeReads.head == removeSecond);
+    assert(removeReads.tail == removeThird);
+    assert(removeSecond->next == removeThird);
+    assert(next_reads_find(&removeReads, 10) == NULL);
+
+    // Insert after removal
+    bool remove_insert_fourth = next_reads_insert(
+        &removeReads, "Er Gen", "Novel D", 40, 400
+    );
+
+    assert(remove_insert_fourth == true);
+
+    NextNode *removeFourth = removeReads.tail;
+
+    assert(removeReads.head == removeSecond);
+    assert(removeSecond->next == removeThird);
+    assert(removeThird->next == removeFourth);
+    assert(removeFourth->next == NULL);
+
+    // Remove second novel
+    bool remove_second = next_reads_remove(&removeReads);
+
+    assert(remove_second == true);
+    assert(removeReads.head == removeThird);
+    assert(removeReads.tail == removeFourth);
+    assert(removeThird->next == removeFourth);
+    assert(next_reads_find(&removeReads, 20) == NULL);
+
+    // Remove third novel
+    bool remove_third = next_reads_remove(&removeReads);
+
+    assert(remove_third == true);
+    assert(removeReads.head == removeFourth);
+    assert(removeReads.tail == removeFourth);
+    assert(removeFourth->next == NULL);
+
+    // Remove only remaining novel
+    bool remove_only = next_reads_remove(&removeReads);
+
+    assert(remove_only == true);
+    assert(removeReads.head == NULL);
+    assert(removeReads.tail == NULL);
+
+    // Try removing again
+    bool remove_again = next_reads_remove(&removeReads);
+
+    assert(remove_again == false);
+
+    // Reuse the empty queue
+    bool insert_after_remove = next_reads_insert(
+        &removeReads, "Er Gen", "A Will Eternal", 50, 1319
+    );
+
+    assert(insert_after_remove == true);
+    assert(removeReads.head == removeReads.tail);
+    assert(removeReads.head->novel.id == 50);
+    assert(removeReads.head->next == NULL);
+
+    bool remove_last = next_reads_remove(&removeReads);
+
+    assert(remove_last == true);
+    assert(removeReads.head == NULL);
+    assert(removeReads.tail == NULL);
+
     // Temporary cleanup while next_reads_free is not implemented
     free(firstNode);
     free(secondNode);

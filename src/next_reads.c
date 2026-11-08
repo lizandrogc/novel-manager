@@ -134,3 +134,19 @@ bool next_reads_cancel(NextReads *reads, i32 id) {
     prev_node->next = next_node;
     return true;
 }
+
+bool next_reads_remove(NextReads *reads) {
+    if (next_reads_empty(reads) == true) return false;
+
+    if (reads->head == reads->tail) {
+        free(reads->head);
+        reads->head = NULL;
+        reads->tail = NULL;
+        return true;
+    }
+
+    NextNode *nextNode = reads->head->next;
+    free(reads->head);
+    reads->head = nextNode;
+    return true;
+}
