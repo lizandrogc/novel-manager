@@ -24,7 +24,7 @@ The project focuses on applying fundamental data structures and algorithms while
 
 - [x] **Current Reads** — Doubly Linked List
 - [x] **Completed Reads** — Singly Linked List
-- [ ] **Next Reads** — Queue
+- [x] **Next Reads** — Queue
 - [ ] **Favorites** — Static List
 - [ ] **Undo History** — Stack
 - [ ] **File Persistence** — Text File
@@ -53,4 +53,12 @@ gcc -std=c11 -Wall -Wextra -Iinclude tests/test_completed_reads.c src/completed_
 ./tests/completed_reads.exe
 ```
 
-Both modules have been tested using assertions to verify their operations, input validation, and list integrity.
+### Next Reads
+
+```bash
+gcc -std=c11 -Wall -Wextra -Iinclude tests/test_next_reads.c src/next_reads.c -o tests/next_reads.exe
+
+./tests/next_reads.exe
+```
+
+All three modules have been tested using assertions to verify their operations, input validation, and data structure integrity.
