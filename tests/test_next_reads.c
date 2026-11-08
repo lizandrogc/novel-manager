@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "next_reads.h"
@@ -425,10 +424,77 @@ int main(void) {
     assert(removeReads.head == NULL);
     assert(removeReads.tail == NULL);
 
-    // Temporary cleanup while next_reads_free is not implemented
-    free(firstNode);
-    free(secondNode);
-    free(thirdNode);
+    // Free queue three novels
+    next_reads_free(&reads);
+
+    assert(reads.head == NULL);
+    assert(reads.tail == NULL);
+
+    // Free empty queue
+    next_reads_free(&reads);
+
+    assert(reads.head == NULL);
+    assert(reads.tail == NULL);
+
+    // Insert only novel after free
+    bool free_insert_first = next_reads_insert(
+        &reads, "Er Gen", "A Will Eternal", 1, 1319
+    );
+
+    assert(free_insert_first == true);
+    assert(reads.head == reads.tail);
+    assert(reads.head->novel.id == 1);
+    assert(reads.head->next == NULL);
+
+    // free queue with only one novel
+    next_reads_free(&reads);
+
+    assert(reads.head == NULL);
+    assert(reads.tail == NULL);
+
+    // Insert three novels after free
+    bool free_insert_second = next_reads_insert(
+        &reads, "Er Gen", "Renegade Immortal", 2, 2094
+    );
+
+    bool free_insert_third = next_reads_insert(
+        &reads, "Er Gen", "Pursuit of the Truth", 3, 1000
+    );
+
+    bool free_insert_fourth = next_reads_insert(
+        &reads, "Er Gen", "A Will Eternal", 4, 1319
+    );
+
+    assert(free_insert_second == true);
+    assert(free_insert_third == true);
+    assert(free_insert_fourth == true);
+
+    assert(reads.head->novel.id == 2);
+    assert(reads.head->next->novel.id == 3);
+    assert(reads.tail->novel.id == 4);
+    assert(reads.tail->next == NULL);
+
+    // Free queue again
+    next_reads_free(&reads);
+
+    assert(reads.head == NULL);
+    assert(reads.tail == NULL);
+
+    // Reuse queue after multiple frees
+    bool free_insert_again = next_reads_insert(
+        &reads, "Cocooned Cow", "Martial World", 5, 2255
+    );
+
+    assert(free_insert_again == true);
+    assert(reads.head == reads.tail);
+    assert(reads.head->novel.id == 5);
+    assert(reads.head->next == NULL);
+
+    // Final cleanup
+    next_reads_free(&reads);
+
+    assert(reads.head == NULL);
+    assert(reads.tail == NULL);
 
     printf("All next_reads tests passed!\n");
 

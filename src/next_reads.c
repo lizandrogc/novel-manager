@@ -150,3 +150,18 @@ bool next_reads_remove(NextReads *reads) {
     reads->head = nextNode;
     return true;
 }
+
+void next_reads_free(NextReads *reads) {
+    if (next_reads_empty(reads) == true) return;
+
+    NextNode *current = reads->head;
+
+    while (current != NULL) {
+        NextNode *temp = current->next;
+        free(current);
+        current = temp;
+    }
+
+    reads->head = NULL;
+    reads->tail = NULL;
+}
