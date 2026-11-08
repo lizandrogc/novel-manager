@@ -192,6 +192,136 @@ int main(void) {
 
     assert(next_reads_find(&reads, 4) == NULL);
 
+    // Consult first novel
+    NextNode *consultFirst = next_reads_consult(&reads);
+
+    assert(consultFirst == firstNode);
+    assert(reads.head == firstNode);
+    assert(reads.tail == thirdNode);
+    assert(firstNode->next == secondNode);
+
+    // Init new queue for cancel tests
+    NextReads cancelReads;
+    next_reads_init(&cancelReads);
+
+    // Consult empty queue
+    NextNode *consultEmpty = next_reads_consult(&cancelReads);
+
+    assert(consultEmpty == NULL);
+
+    // Cancel from empty queue
+    bool cancel_empty = next_reads_cancel(&cancelReads, 1);
+
+    assert(cancel_empty == false);
+    assert(cancelReads.head == NULL);
+    assert(cancelReads.tail == NULL);
+
+    // Insert four novels
+    bool cancel_insert_first = next_reads_insert(
+        &cancelReads, "Er Gen", "Novel A", 10, 100
+    );
+
+    bool cancel_insert_second = next_reads_insert(
+        &cancelReads, "Er Gen", "Novel B", 20, 200
+    );
+
+    bool cancel_insert_third = next_reads_insert(
+        &cancelReads, "Er Gen", "Novel C", 30, 300
+    );
+
+    bool cancel_insert_fourth = next_reads_insert(
+        &cancelReads, "Er Gen", "Novel D", 40, 400
+    );
+
+    assert(cancel_insert_first == true);
+    assert(cancel_insert_second == true);
+    assert(cancel_insert_third == true);
+    assert(cancel_insert_fourth == true);
+
+    NextNode *cancelFirst = cancelReads.head;
+    NextNode *cancelSecond = cancelFirst->next;
+    NextNode *cancelThird = cancelSecond->next;
+    NextNode *cancelFourth = cancelReads.tail;
+
+    assert(cancelFirst->next == cancelSecond);
+    assert(cancelSecond->next == cancelThird);
+    assert(cancelThird->next == cancelFourth);
+    assert(cancelFourth->next == NULL);
+
+    // Cancel invalid id
+    bool cancel_non_existent = next_reads_cancel(&cancelReads, 999);
+    bool cancel_zero = next_reads_cancel(&cancelReads, 0);
+    bool cancel_negative = next_reads_cancel(&cancelReads, -1);
+
+    assert(cancel_non_existent == false);
+    assert(cancel_zero == false);
+    assert(cancel_negative == false);
+
+    // check integrity after failed cancel
+    assert(cancelReads.head == cancelFirst);
+    assert(cancelReads.tail == cancelFourth);
+    assert(cancelFirst->next == cancelSecond);
+    assert(cancelSecond->next == cancelThird);
+    assert(cancelThird->next == cancelFourth);
+
+    // Cancel mid node
+    bool cancel_middle = next_reads_cancel(&cancelReads, 20);
+
+    assert(cancel_middle == true);
+    assert(cancelReads.head == cancelFirst);
+    assert(cancelReads.tail == cancelFourth);
+    assert(cancelFirst->next == cancelThird);
+    assert(cancelThird->next == cancelFourth);
+    assert(next_reads_find(&cancelReads, 20) == NULL);
+
+    // Cancel tail
+    bool cancel_tail = next_reads_cancel(&cancelReads, 40);
+
+    assert(cancel_tail == true);
+    assert(cancelReads.head == cancelFirst);
+    assert(cancelReads.tail == cancelThird);
+    assert(cancelFirst->next == cancelThird);
+    assert(cancelThird->next == NULL);
+    assert(next_reads_find(&cancelReads, 40) == NULL);
+
+    // Cancel head
+    bool cancel_head = next_reads_cancel(&cancelReads, 10);
+
+    assert(cancel_head == true);
+    assert(cancelReads.head == cancelThird);
+    assert(cancelReads.tail == cancelThird);
+    assert(cancelThird->next == NULL);
+    assert(next_reads_find(&cancelReads, 10) == NULL);
+
+    // Cancel only node
+    bool cancel_only = next_reads_cancel(&cancelReads, 30);
+
+    assert(cancel_only == true);
+    assert(cancelReads.head == NULL);
+    assert(cancelReads.tail == NULL);
+
+    // Try canceling the same id again
+    bool cancel_again = next_reads_cancel(&cancelReads, 30);
+
+    assert(cancel_again == false);
+
+    // reuse empty queue
+    bool insert_after_cancel = next_reads_insert(
+        &cancelReads, "Er Gen", "A Will Eternal", 50, 1321
+    );
+
+    assert(insert_after_cancel == true);
+    assert(cancelReads.head == cancelReads.tail);
+    assert(cancelReads.head->novel.id == 50);
+    assert(cancelReads.head->next == NULL);
+
+    // Cancel last remaining novel
+    bool cancel_last = next_reads_cancel(&cancelReads, 50);
+
+    assert(cancel_last == true);
+    assert(cancelReads.head == NULL);
+    assert(cancelReads.tail == NULL);
+    
     // Temporary cleanup while next_reads_free is not implemented
     free(firstNode);
     free(secondNode);

@@ -68,8 +68,8 @@ bool next_reads_insert(NextReads *reads,
 NextNode *next_reads_find(NextReads *reads, i32 id) {
     if (next_reads_empty(reads) == true) return NULL;
 
-    if (id <= 0) return NULL;
 
+    if (id <= 0) return NULL;
     NextNode *current = reads->head;
 
     while (current != NULL && current->novel.id != id) {
@@ -85,4 +85,52 @@ NextNode *next_reads_consult(NextReads *reads) {
     if (next_reads_empty(reads) == true) return NULL;
 
     return reads->head;
+}
+
+bool next_reads_cancel(NextReads *reads, i32 id) {
+    NextNode *current = next_reads_find(reads, id);
+
+    if (!current) return false;
+
+    if (current == reads->head && current == reads->tail) {
+        free(reads->head);
+        reads->head = NULL;
+        reads->tail = NULL;
+        return true;
+    }
+
+    if (current == reads->head) {
+        NextNode *next = reads->head->next;
+        free(reads->head);
+        reads->head = next;
+        return true;
+    }
+
+    if (current == reads->tail) {
+        NextNode *prev = NULL;
+        NextNode *aux = reads->head;
+
+        while (aux->next != NULL) {
+            prev = aux;
+            aux = aux->next;
+        }       
+
+        free(reads->tail);
+        prev->next = NULL;
+        reads->tail = prev;
+        return true;
+    }
+
+    NextNode *prev_node = NULL;
+    NextNode *temp = reads->head;
+
+    while (temp != current) {
+        prev_node = temp;
+        temp = temp->next;
+    }
+
+    NextNode *next_node = temp->next;
+    free(temp);
+    prev_node->next = next_node;
+    return true;
 }
