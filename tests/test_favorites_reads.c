@@ -322,6 +322,71 @@ int main(void) {
     assert(favorites_reads_find(&capacityReads, 501) == 499);
     assert(favorites_reads_find(&capacityReads, 1001) == 998);
 
+    // Init new favorites for clear tests
+    FavoritesReads clearReads;
+    favorites_reads_init(&clearReads);
+
+    // Insert three novels
+    bool clear_insert_first = favorites_reads_insert(&clearReads, 10);
+    bool clear_insert_second = favorites_reads_insert(&clearReads, 20);
+    bool clear_insert_third = favorites_reads_insert(&clearReads, 30);
+
+    assert(clear_insert_first == true);
+    assert(clear_insert_second == true);
+    assert(clear_insert_third == true);
+
+    assert(clearReads.length == 3);
+
+    // Clear favorites
+    favorites_reads_clear(&clearReads);
+
+    assert(clearReads.length == 0);
+
+    // Check all positions are zero
+    for (size_t i = 0; i < MAX_FAVORITES; i++) {
+        assert(clearReads.ids[i] == 0);
+    }
+
+    // Find after clear
+    assert(favorites_reads_find(&clearReads, 10) == -1);
+    assert(favorites_reads_find(&clearReads, 20) == -1);
+    assert(favorites_reads_find(&clearReads, 30) == -1);
+
+    // Clear empty favorites
+    favorites_reads_clear(&clearReads);
+
+    assert(clearReads.length == 0);
+
+    // Insert after clear
+    bool insert_after_clear = favorites_reads_insert(&clearReads, 40);
+    bool second_insert_after_clear = favorites_reads_insert(&clearReads, 50);
+
+    assert(insert_after_clear == true);
+    assert(second_insert_after_clear == true);
+
+    assert(clearReads.length == 2);
+    assert(clearReads.ids[0] == 40);
+    assert(clearReads.ids[1] == 50);
+
+    assert(favorites_reads_find(&clearReads, 40) == 0);
+    assert(favorites_reads_find(&clearReads, 50) == 1);
+
+    // Clear reused favorites
+    favorites_reads_clear(&clearReads);
+
+    assert(clearReads.length == 0);
+
+    for (size_t i = 0; i < MAX_FAVORITES; i++) {
+        assert(clearReads.ids[i] == 0);
+    }
+
+    // Insert after multiple clears
+    bool insert_after_multiple_clears = favorites_reads_insert(&clearReads, 60);
+
+    assert(insert_after_multiple_clears == true);
+    assert(clearReads.length == 1);
+    assert(clearReads.ids[0] == 60);
+
     printf("All favorites_reads tests passed!\n");
 
     return 0;

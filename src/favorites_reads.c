@@ -1,3 +1,4 @@
+#include <string.h>
 #include "favorites_reads.h"
 
 
@@ -46,4 +47,9 @@ bool favorites_reads_remove(FavoritesReads *favorites, i32 id) {
     
     favorites->length--;
     return true;
+}
+
+void favorites_reads_clear(FavoritesReads *favorites) {
+    memset(favorites->ids, 0, sizeof favorites->ids);
+    favorites->length = 0;
 }
