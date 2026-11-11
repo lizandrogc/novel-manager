@@ -32,3 +32,18 @@ bool favorites_reads_insert(FavoritesReads *favorites, i32 id) {
     favorites->length++;
     return true;
 }
+
+bool favorites_reads_remove(FavoritesReads *favorites, i32 id) {
+    if (id <= 0) return false;
+
+    i32 idx = favorites_reads_find(favorites, id);
+
+    if (idx == -1) return false;
+
+    for (size_t i = idx; i < favorites->length - 1; i++) {
+        favorites->ids[i] = favorites->ids[i + 1];
+    }
+    
+    favorites->length--;
+    return true;
+}

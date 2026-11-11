@@ -162,6 +162,166 @@ int main(void) {
     assert(fullFavorites.ids[0] == 50);
     assert(favorites_reads_find(&fullFavorites, 50) == 0);
 
+    // Init new favorites for remove tests
+    FavoritesReads removeReads;
+    favorites_reads_init(&removeReads);
+
+    assert(removeReads.length == 0);
+
+    // Remove from empty favorites
+    bool remove_empty = favorites_reads_remove(&removeReads, 10);
+
+    assert(remove_empty == false);
+    assert(removeReads.length == 0);
+
+    // Insert four novels
+    bool remove_insert_first = favorites_reads_insert(&removeReads, 10);
+    bool remove_insert_second = favorites_reads_insert(&removeReads, 20);
+    bool remove_insert_third = favorites_reads_insert(&removeReads, 30);
+    bool remove_insert_fourth = favorites_reads_insert(&removeReads, 40);
+
+    assert(remove_insert_first == true);
+    assert(remove_insert_second == true);
+    assert(remove_insert_third == true);
+    assert(remove_insert_fourth == true);
+
+    assert(removeReads.length == 4);
+
+    assert(removeReads.ids[0] == 10);
+    assert(removeReads.ids[1] == 20);
+    assert(removeReads.ids[2] == 30);
+    assert(removeReads.ids[3] == 40);
+
+    // Remove invalid ids
+    bool remove_zero = favorites_reads_remove(&removeReads, 0);
+    bool remove_negative = favorites_reads_remove(&removeReads, -1);
+    bool remove_non_existent = favorites_reads_remove(&removeReads, 999);
+
+    assert(remove_zero == false);
+    assert(remove_negative == false);
+    assert(remove_non_existent == false);
+
+    // Check integrity after fail removal
+    assert(removeReads.length == 4);
+
+    assert(removeReads.ids[0] == 10);
+    assert(removeReads.ids[1] == 20);
+    assert(removeReads.ids[2] == 30);
+    assert(removeReads.ids[3] == 40);
+
+    // Remove mid novel
+    bool remove_middle = favorites_reads_remove(&removeReads, 20);
+
+    assert(remove_middle == true);
+    assert(removeReads.length == 3);
+
+    assert(removeReads.ids[0] == 10);
+    assert(removeReads.ids[1] == 30);
+    assert(removeReads.ids[2] == 40);
+
+    assert(favorites_reads_find(&removeReads, 20) == -1);
+    assert(favorites_reads_find(&removeReads, 30) == 1);
+
+    // Remove first novel
+    bool remove_first = favorites_reads_remove(&removeReads, 10);
+
+    assert(remove_first == true);
+    assert(removeReads.length == 2);
+
+    assert(removeReads.ids[0] == 30);
+    assert(removeReads.ids[1] == 40);
+
+    assert(favorites_reads_find(&removeReads, 10) == -1);
+    assert(favorites_reads_find(&removeReads, 30) == 0);
+
+    // Remove last novel
+    bool remove_last = favorites_reads_remove(&removeReads, 40);
+
+    assert(remove_last == true);
+    assert(removeReads.length == 1);
+
+    assert(removeReads.ids[0] == 30);
+    assert(favorites_reads_find(&removeReads, 40) == -1);
+
+    // Remove only remaining novel
+    bool remove_only = favorites_reads_remove(&removeReads, 30);
+
+    assert(remove_only == true);
+    assert(removeReads.length == 0);
+    assert(favorites_reads_find(&removeReads, 30) == -1);
+
+    // Try remove again
+    bool remove_again = favorites_reads_remove(&removeReads, 30);
+
+    assert(remove_again == false);
+    assert(removeReads.length == 0);
+
+    // Reuse empty favorites
+    bool insert_after_remove = favorites_reads_insert(&removeReads, 50);
+    bool second_insert_after_remove = favorites_reads_insert(&removeReads, 60);
+
+    assert(insert_after_remove == true);
+    assert(second_insert_after_remove == true);
+
+    assert(removeReads.length == 2);
+    assert(removeReads.ids[0] == 50);
+    assert(removeReads.ids[1] == 60);
+
+    // Remove after reuse
+    bool remove_after_reuse = favorites_reads_remove(&removeReads, 50);
+
+    assert(remove_after_reuse == true);
+    assert(removeReads.length == 1);
+    assert(removeReads.ids[0] == 60);
+    assert(favorites_reads_find(&removeReads, 50) == -1);
+
+    // Init new favorites for capacity remove tests
+    FavoritesReads capacityReads;
+    favorites_reads_init(&capacityReads);
+
+    // Fill favorites
+    for (size_t i = 0; i < MAX_FAVORITES; i++) {
+        i32 id = (i32)i + 1;
+
+        bool inserted = favorites_reads_insert(&capacityReads, id);
+
+        assert(inserted == true);
+    }
+
+    assert(capacityReads.length == MAX_FAVORITES);
+
+    // Remove last element from full favorites
+    bool remove_full_last = favorites_reads_remove(&capacityReads, 1000);
+
+    assert(remove_full_last == true);
+    assert(capacityReads.length == MAX_FAVORITES - 1);
+
+    assert(capacityReads.ids[MAX_FAVORITES - 2] == 999);
+    assert(favorites_reads_find(&capacityReads, 1000) == -1);
+
+    // Insert after remove from full favorites
+    bool insert_after_full_remove = favorites_reads_insert(&capacityReads, 1001);
+
+    assert(insert_after_full_remove == true);
+    assert(capacityReads.length == MAX_FAVORITES);
+
+    assert(capacityReads.ids[MAX_FAVORITES - 1] == 1001);
+    assert(favorites_reads_find(&capacityReads, 1001) == 999);
+
+    // Remove mid element from full favorites
+    bool remove_full_middle = favorites_reads_remove(&capacityReads, 500);
+
+    assert(remove_full_middle == true);
+    assert(capacityReads.length == MAX_FAVORITES - 1);
+
+    assert(capacityReads.ids[498] == 499);
+    assert(capacityReads.ids[499] == 501);
+    assert(capacityReads.ids[998] == 1001);
+
+    assert(favorites_reads_find(&capacityReads, 500) == -1);
+    assert(favorites_reads_find(&capacityReads, 501) == 499);
+    assert(favorites_reads_find(&capacityReads, 1001) == 998);
+
     printf("All favorites_reads tests passed!\n");
 
     return 0;
