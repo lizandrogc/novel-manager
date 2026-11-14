@@ -77,15 +77,62 @@ int main(void) {
     check(peeked == third);
     check(stack.top == third);
 
-    // Temporary cleanup 
-    while (stack.top != NULL) {
-        UndoNode *current = stack.top;
-        stack.top = current->next;
-        free(current);
-    }
+    // Pop from multiple nodes
+    check(undo_stack_pop(&stack) == true);
+
+    check(stack.top == second);
+    check(undo_stack_peek(&stack) == second);
+    check(stack.top->id == 2);
+    check(stack.top->prev_read_chapters == 50);
+
+    // Pop leaving one node
+    check(undo_stack_pop(&stack) == true);
+
+    check(stack.top == first);
+    check(stack.top->id == 1);
+    check(stack.top->next == NULL);
+
+    // Pop last node
+    check(undo_stack_pop(&stack) == true);
 
     check(stack.top == NULL);
     check(undo_stack_peek(&stack) == NULL);
+
+    // Pop from empty stack
+    check(undo_stack_pop(&stack) == false);
+    check(stack.top == NULL);
+
+    // Free empty stack
+    undo_stack_free(&stack);
+    check(stack.top == NULL);
+
+    // Free stack with one node
+    check(undo_stack_push(&stack, 3, 75) == true);
+
+    undo_stack_free(&stack);
+    check(stack.top == NULL);
+    check(undo_stack_peek(&stack) == NULL);
+
+    // Free stack with multiple nodes
+    check(undo_stack_push(&stack, 1, 100) == true);
+    check(undo_stack_push(&stack, 2, 200) == true);
+    check(undo_stack_push(&stack, 3, 300) == true);
+
+    undo_stack_free(&stack);
+
+    check(stack.top == NULL);
+    check(undo_stack_peek(&stack) == NULL);
+
+    // Reuse stack after free
+    check(undo_stack_push(&stack, 4, 0) == true);
+
+    check(stack.top != NULL);
+    check(stack.top->id == 4);
+    check(stack.top->prev_read_chapters == 0);
+    check(stack.top->next == NULL);
+
+    undo_stack_free(&stack);
+    check(stack.top == NULL);
 
     printf("All stack_undo tests passed!\n");
 

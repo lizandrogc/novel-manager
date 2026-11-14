@@ -41,3 +41,20 @@ bool undo_stack_push(UndoStack *stack, i32 id, i32 chapters) {
     
     return true;
 }
+
+bool undo_stack_pop(UndoStack *stack) {
+    if (undo_stack_empty(stack) == true) return false;
+
+    UndoNode *current = stack->top->next;
+    
+    free(stack->top);
+    stack->top = current;
+    
+    return true;
+}
+
+void undo_stack_free(UndoStack *stack) {
+    while (stack->top != NULL) {
+        undo_stack_pop(stack);
+    }
+}
