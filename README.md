@@ -26,7 +26,7 @@ The project focuses on applying fundamental data structures and algorithms while
 - [x] **Completed Reads** — Singly Linked List
 - [x] **Next Reads** — Queue
 - [x] **Favorites** — Static List
-- [ ] **Undo History** — Stack
+- [x] **Undo History** — Stack
 - [ ] **File Persistence** — Text File
 - [ ] **CLI Integration** — Terminal Interface
 - [ ] **Final Review** — Testing and Documentation
@@ -69,4 +69,12 @@ gcc -std=c11 -Wall -Wextra -Iinclude tests/test_favorites_reads.c src/favorites_
 ./tests/favorites_reads.exe
 ```
 
-All four modules have been tested using assertions to verify their operations, input validation, edge cases, and data structure integrity.
+### Stack Undo
+
+```bash
+gcc -std=c11 -Wall -Wextra -Iinclude tests/test_stack_undo.c src/stack_undo.c -o tests/stack_undo.exe
+
+./tests/stack_undo.exe
+```
+
+All five modules have been tested using assertions to verify their operations, input validation, edge cases, and data structure integrity.
